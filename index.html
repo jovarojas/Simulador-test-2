@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="simulador unach preuniversitario San Marcos Riobamba">
+    <meta name="keywords" content="simulador, unach, ingreso, universidad, practic">
+    <meta name="author" content="Jovanna Rojas Malave">
+    <title>SIMULADOR 2 UNACH</title>
+    <link rel="icon" href="favicon.ico">
+    <!--
+    Autor: Jovanna Rojas Malave
+    GitHub: https://github.com/jovarojas
+    LinkedIn: https://www.linkedin.com/in/jovanna-rojas-651574257/ -->
+    <script>
+        window.addEventListener("DOMContentLoaded", function () {
+            let preguntaActual = parseInt(localStorage.getItem("preguntaActual")) || 0; // Cargar pregunta guardada o iniciar en 0
+            let preguntas = document.querySelectorAll(".pregunta");
+            let tiempoRestante = parseInt(localStorage.getItem("tiempoRestante")) || 3600; // Cargar tiempo o iniciar en 1 hora;
+            let timer;
+            let respuestasCorrectas = {
+                q1: "c", q2: "c", q3: "c", q4: "c", q5: "c", q6: "c", q7: "a", q8: "a", q9: "b", q10: "d", q11: "c", q12: "d",
+                q13: "c", q14: "a", q15: "c", q16: "d", q17: "b", q18: "d", q19: "b", q20: "d", q21: "a", q22: "d", q23: "d",
+                q24: "b", q25: "d", q26: "c", q27: "d", q28: "b", q29: "b", q30: "d", q31: "d", q32: "a", q33: "a", q34: "a",
+                q35: "c", q36: "b", q37: "c", q38: "a", q39: "b", q40: "c", q41: "c", q42: "b", q43: "c", q44: "d", q45: "c",
+                q46: "d", q47: "d", q48: "d", q49: "d", q50: "a", q51: "b", q52: "b", q53: "d", q54: "d", q55: "d", q56: "b",
+                q57: "d", q58: "a", q59: "c", q60: "b", q61: "c", q62: "c", q63: "a", q64: "d", q65: "a", q66: "b", q67: "b",
+                q68: "d", q69: "c", q70: "a", q71: "a", q72: "b", q73: "c", q74: "a", q75: "d", q76: "a", q77: "a", q78: "d",
+                q79: "a", q80: "b"
+            };
+
+            let respuestasUsuario = JSON.parse(localStorage.getItem("respuestasUsuario")) || {};
+
+            function iniciarTemporizador() {
+                if (timer) {
+                    clearInterval(timer); // Detener cualquier temporizador anterior
+                }
+
+                timer = setInterval(function () {
+                    tiempoRestante--;
+                    localStorage.setItem("tiempoRestante", tiempoRestante); // Guardar tiempo restante
+
+                    let minutos = Math.floor(tiempoRestante / 60);
+                    let segundos = tiempoRestante % 60;
+                    document.getElementById("timer").innerText = "Tiempo restante: " + minutos + ":" + (segundos < 10 ? '0' : '') + segundos;
+
+                    if (tiempoRestante <= 0) {
+                        clearInterval(timer);
+                        mostrarResultados();
+                    }
+                }, 1000);
+            }
+
+
+            function actualizarContador() {
+                document.getElementById("contador").innerText = "Pregunta " + (preguntaActual + 1) + " de " + preguntas.length;
+                localStorage.setItem("preguntaActual", preguntaActual); // Guardar progreso
+            }
+
+            function siguientePregunta() {
+                let nombrePregunta = "q" + (preguntaActual + 1);
+                let seleccionada = document.querySelector("input[name=" + nombrePregunta + "]:checked");
+
+                if (seleccionada) {
+                    respuestasUsuario[nombrePregunta] = seleccionada.value;
+                }
+
+                localStorage.setItem("respuestasUsuario", JSON.stringify(respuestasUsuario));
+
+                //la clase active se va moviendo en cada pregunta por lo cual hay que retirarla de la "anterior"
+                preguntas[preguntaActual].classList.remove("active");
+                preguntaActual++; //Se incrementa para marcar la posicion de la pregunta
+
+                if (preguntaActual < preguntas.length) {
+                    preguntas[preguntaActual].classList.add("active"); //se le agrega la clase active a la nueva pregunta actual
+                    document.getElementById("prevButton").disabled = false;
+                    actualizarContador();
+                } else {
+                    mostrarResultados();
+                }
+
+                if (preguntaActual === preguntas.length - 1) {
+                    document.getElementById("nextButton").innerText = "Finalizar";
+                }
+            }
+            /*Ir a la pregunta anterior y guardar el proceso*/
+            function preguntaAnterior() {
+                preguntas[preguntaActual].classList.remove("active");
+                preguntaActual--;
+
+                if (preguntaActual >= 0) {
+                    preguntas[preguntaActual].classList.add("active");
+                    actualizarContador();
+                }
+
+                if (preguntaActual === 0) {
+                    document.getElementById("prevButton").disabled = true;
+                }
+
+                document.getElementById("nextButton").innerText = "Siguiente";
+            }
+
+            function mostrarResultados() {
+                clearInterval(timer);
+                localStorage.removeItem("tiempoRestante"); // Limpiar tiempo restante al finalizar
+
+                let aciertos = 0;
+                let puntajeFinal = 0;
+
+                let detalleResultados = document.getElementById("detalleResultados");
+                detalleResultados.innerHTML = "<h3>Resultados detallados:</h3>";
+
+                for (let i = 0; i < preguntas.length; i++) {
+                    let pregunta = preguntas[i];
+                    let nombrePregunta = "q" + (i + 1);
+                    let respuestaUsuario = respuestasUsuario[nombrePregunta] || "No respondida";
+                    let correcta = respuestasCorrectas[nombrePregunta];
+
+                    let resultadoTexto = "<p><strong>Pregunta " + (i + 1) + ":</strong> ";
+
+                    if (respuestaUsuario === "No respondida") {
+                        resultadoTexto += "⚠️ No respondida</p>";
+                    } else if (respuestaUsuario === correcta) {
+                        aciertos++;
+                        resultadoTexto += "✅ Correcta (" + respuestaUsuario.toUpperCase() + ")</p>";
+                    } else {
+                        resultadoTexto += "❌ Incorrecta (Tu respuesta: " + respuestaUsuario.toUpperCase() + " | Correcta: " + correcta.toUpperCase() + ")</p>";
+                    }
+
+                    detalleResultados.innerHTML += resultadoTexto;
+                }
+
+                puntajeFinal = (aciertos / preguntas.length) * 1000; // Ajuste según escala
+
+                document.getElementById("resultado").innerText = "Examen finalizado. Aciertos: " + aciertos + " de " + preguntas.length;
+                document.getElementById("puntaje").innerHTML = "Puntaje final: " + puntajeFinal.toFixed(2) + "/1000";
+
+                // Ocultar elementos innecesarios después del examen
+                document.getElementById("nextButton").style.display = "none";
+                document.getElementById("prevButton").style.display = "none";
+                document.getElementById("timer").style.display = "none";
+                document.getElementById("contador").style.display = "none";
+
+                // Ocultar todas las preguntas al finalizar
+                for (let i = 0; i < preguntas.length; i++) {
+                    preguntas[i].style.display = "none";
+                }
+            }
+
+            // Cargar respuestas guardadas y restaurar la pregunta actual
+            function cargarRespuestasGuardadas() {
+                let nombresPreguntas = Object.keys(respuestasUsuario);
+
+                for (let i = 0; i < nombresPreguntas.length; i++) {
+                    let nombrePregunta = nombresPreguntas[i];
+                    let opcionSeleccionada = document.querySelector('input[name="' + nombrePregunta + '"][value="' + respuestasUsuario[nombrePregunta] + '"]');
+                    if (opcionSeleccionada) {
+                        opcionSeleccionada.checked = true;
+                    }
+                }
+
+                // Restaurar la última pregunta activa
+                for (let i = 0; i < preguntas.length; i++) {
+                    preguntas[i].classList.remove("active");
+                }
+
+                preguntas[preguntaActual].classList.add("active"); // Mostrar la última pregunta vista
+                actualizarContador();
+            }
+
+            const p = "0990931870";
+
+            function pedirContraseña() {
+                document.getElementById("contenidoTest").style.display = "none";
+            }
+
+            function verificarContraseña() {
+                let inputP = document.getElementById("pInput").value;
+
+                if (inputP === p) {
+                    document.getElementById("login").style.display = "none";
+                    document.getElementById("contenidoTest").style.display = "block";
+                    cargarRespuestasGuardadas();
+                    iniciarTemporizador();
+                } else {
+                    alert("Contraseña incorrecta, intenta de nuevo.");
+                    document.getElementById("pInput").value = "";
+                }
+            }
+
+            function reiniciarTest() {
+                localStorage.clear();
+                location.reload();
+            }
+
+            // Vincular funciones a botones si están presentes
+            document.getElementById("nextButton")?.addEventListener("click", siguientePregunta);
+            document.getElementById("prevButton")?.addEventListener("click", preguntaAnterior);
+            document.getElementById("verificarBtn")?.addEventListener("click", verificarContraseña);
+            document.getElementById("reiniciarBtn")?.addEventListener("click", reiniciarTest);
+
+            // Mostrar pantalla de contraseña si aplica
+            pedirContraseña();
+        })
+    </script>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 20px;
+            font-size: 150%;
+        }
+
+        footer,
+        h2 {
+            text-align: center;
+        }
+
+        h2 {
+            line-height: 100px;
+            background-color: #00345d;
+            color: white;
+        }
+
+        #login {
+            position: relative;
+        }
+
+        [alt*="fija"] {
+            border-radius: 50%;
+            position: fixed;
+            bottom: 5px;
+            right: 5px;
+            max-height: 100px;
+            width: auto;
+        }
+
+        footer {
+            background-color: lightgray;
+            border: #00345d groove 2px;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        header img {
+            float: left;
+        }
+
+        #quiz {
+            clear: both;
+            overflow: hidden;
+        }
+
+        .cuadrado {
+            width: 150px;
+            height: 150px;
+        }
+
+        .rectangulo {
+            height: 150px;
+            width: 400px;
+        }
+
+        .pregunta {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            float: right;
+            width: 80%;
+            padding: 10px;
+        }
+
+        input {
+            margin: 10px 5px;
+            transform: scale(1.3);
+        }
+
+        p+img {
+            margin-left: 5px;
+            max-width: 90%;
+        }
+
+        .active {
+            display: block;
+            opacity: 1;
+            background-color: #b3c7dbAA;
+        }
+
+        button {
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 20px;
+            border-radius: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #timer {
+            font-weight: bold;
+            color: red;
+            margin-bottom: 10px;
+            display: block;
+            float: right;
+            border: 2px solid black;
+            padding: 10px;
+        }
+
+        #contador {
+            font-size: 20px;
+            margin-bottom: 10px;
+            display: block;
+            float: left;
+            border: 2px solid black;
+            padding: 10px;
+            background-color: lightgray;
+        }
+
+        p>span {
+            font-size: 300%;
+            margin: 10px;
+        }
+
+        #prevButton {
+            float: left;
+            clear: both;
+        }
+
+        #nextButton {
+            float: right;
+
+        }
+
+        #reiniciar {
+            float: left;
+            margin-top: 24px;
+        }
+
+        #pInput {
+            margin-right: 30px;
+
+        }
+
+        table img {
+            max-width: 700px;
+        }
+
+
+        /* Adaptación para pantallas moviles */
+        @media screen and (max-width: 768px) {
+            body {
+                font-size: 120%;
+                margin: 10px;
+            }
+
+            h2 {
+                font-size: 20px;
+                line-height: normal;
+                padding: 10px;
+            }
+
+            header img {
+                float: none;
+                display: block;
+                margin: 0 auto;
+            }
+
+            #quiz {
+                width: 100%;
+            }
+
+            .pregunta {
+                width: 95%;
+                float: none;
+            }
+
+            .pregunta img {
+                width: 90%;
+                max-width: 300px;
+            }
+
+            #timer,
+            #contador {
+                font-size: 16px;
+                float: none;
+                display: block;
+                text-align: center;
+                width: 93%;
+            }
+
+            button {
+                width: 100%;
+                font-size: 18px;
+            }
+
+            #prevButton,
+            #nextButton {
+                float: none;
+                display: block;
+                width: 98%;
+                text-align: center;
+            }
+
+            #reiniciar {
+                float: none;
+                display: block;
+                margin: 10px auto;
+                text-align: center;
+            }
+
+            .pregunta p {
+                margin: 16px;
+            }
+
+            table {
+                margin-right: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="login" style="text-align:center; padding: 20px;">
+        <h2>Ingrese la contraseña para acceder al test</h2>
+        <input type="password" id="pInput" autofocus>
+        <button id="verificarBtn">Ingresar</button>
+        <img src="images/logo.png" alt="imagen fija">
+    </div>
+
+    <div id="contenidoTest" style="display: none;">
+        <header>
+            <img src="images/logo.png" alt="logo del preuniversitario">
+            <h2>SIMULADOR UNACH<br>PREUNIVERSITARIO SAN MARCOS</h2>
+            <button id="reiniciarBtn">Reiniciar Test</button>
+            <p id="timer">Tiempo restante: 60:00</p>
+        </header>
+
+        <div id="quiz">
+            <p id="contador">Pregunta 1 de 80</p>
+            <!--PREGUNTA 1 A LA 20, VERBAL-->
+            <div class="pregunta active">
+                <p>En la siguiente analogía identifique la opción que corresponda:</p><br>
+                HUELGA es a DESCONTENTO como:<br><br>
+                <input type="radio" name="q1" value="a">Matrimonio es a Fracaso<br>
+                <input type="radio" name="q1" value="b">Fiesta es a Baile<br>
+                <input type="radio" name="q1" value="c">Enfrentamiento es a Desacuerdo<br>
+                <input type="radio" name="q1" value="d">Felicidad es a Pelea<br>
+            </div>
+            <div class="pregunta">
+                <p>De las siguientes palabras identifique cuál no pertenece a su categoría según el número de sílabas
+                </p>
+                <input type="radio" name="q2" value="a">tiburón<br>
+                <input type="radio" name="q2" value="b">paleta<br>
+                <input type="radio" name="q2" value="c">camión<br>
+                <input type="radio" name="q2" value="d">líquido<br>
+            </div>
+
+            <div class="pregunta">
+                <p> Lea el siguiente texto e identifiqué la idea central</p>
+                <b>PRODUCCIÓN PESQUERA EN EL ECUADOR</b><br>
+                <p>Según organismos internacionales, la acuicultura en el Ecuador se basa principalmente en la
+                    producción de camarón, siendo 95 % de la producción acuícola; en segundo lugar, está la tilapia, que
+                    ha crecido notablemente en la última década, y en menor porcentaje, la explotación de crustáceos y
+                    otros peces de mar. Esta riqueza se da gracias a las corrientes oceánicas muy distintas, la
+                    corriente de agua cálida (El Niño) y la corriente de agua fría (Humboldt) su combinación crea un
+                    ecosistema rico en nutrientes. (Fragmento).</p>
+                <input type="radio" name="q3" value="a">La apicultura en el Ecuador se basa principalmente en la
+                producción de camarón, siendo 95 % de la producción.<br>
+                <input type="radio" name="q3" value="b">La producción pesquera en el Ecuador tiene grandes estándares
+                internacionales por su calidad<br>
+                <input type="radio" name="q3" value="c">La riqueza en recursos marinos en el Ecuador se da por la
+                combinación de dos corrientes oceánicas muy diferentes<br>
+                <input type="radio" name="q3" value="d">La explotación de crustáceos y otros peces de mar deben tener
+                una regulación para su comercio<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Interprete el significado que mejor se ajuste al siguiente refrán: <b>"Cuando el río suena, piedras
+                        trae"</b></p>
+                <input type="radio" name="q4" value="a">El agua al seguir su trayectoria mueve las piedras<br>
+                <input type="radio" name="q4" value="b">Los ríos siempre suenan por las piedras<br>
+                <input type="radio" name="q4" value="c">Los rumores pueden tener algo de verdad<br>
+                <input type="radio" name="q4" value="d">Los rumores se presentan de manera inesperada<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Identifique la palabra que No tiene relación con las otras</p>
+                <input type="radio" name="q5" value="a">serpiente<br>
+                <input type="radio" name="q5" value="b">pollo<br>
+                <input type="radio" name="q5" value="c">foca<br>
+                <input type="radio" name="q5" value="d">tortuga<br>
+            </div>
+
+            <div class="pregunta">
+                <p><b>Lea el siguiente texto</b><br>
+                    La diferencia esencial entre la Obra literaria y la Obra informativa reside, no en su belleza
+                    formal, sino en su finalidad. La primera tiene un valor por sí misma; la segunda vale por su mayor o
+                    menor aproximación a la verdad objetiva. Leemos la obra literaria sabiendo que es un ente de
+                    fantasía, aunque su tema sea rigurosamente histórico, o corresponda a cosas de la realidad. Una
+                    novela como "Átomo" es especialmente novela y no un tratado de física. (Fragmento).<br>- Infiera
+                    cuál es el propósito comunicativo.
+                </p>
+                <input type="radio" name="q6" value="a">Destacar la belleza de las obras informativas y su finalidad
+                comunicativa<br>
+                <input type="radio" name="q6" value="b">Concluir en las semejanzas entre las obras literarias e
+                informativas<br>
+                <input type="radio" name="q6" value="c">Establecer una discusión entre la obra literaria y la obra de
+                información<br>
+                <input type="radio" name="q6" value="d">Direccionar la importancia de la valoración de las obras
+                literarias clásicas<br>
+            </div>
+            <div class="pregunta">
+                <p>En el siguiente enunciado identifique el sinónimo de la palabra Actual</p>
+                <input type="radio" name="q7" value="a">Vigente<br>
+                <input type="radio" name="q7" value="b">Ausente<br>
+                <input type="radio" name="q7" value="c">Anterior<br>
+                <input type="radio" name="q7" value="d">Factible<br>
+            </div>
+            <div class="pregunta">
+                <p>Interprete el significado que mejor se ajuste al siguiente refrán: <b>"El que tiene boca, se
+                        equivoca"</b></p>
+                <input type="radio" name="q8" value="a">Todos podemos cometer errores y lastimar por medio de nuestras
+                palabras<br>
+                <input type="radio" name="q8" value="b">Nuestra boca debe consumir alimentos en buen estado para estar
+                saludables<br>
+                <input type="radio" name="q8" value="c">A veces hablamos sin pensar y eso no es malo porque nos afianza
+                la personalidad<br>
+                <input type="radio" name="q8" value="d">La capacidad de mentir va en medida del tamaño de nuestra boca y
+                sus palabras<br>
+            </div>
+            <div class="pregunta">
+                <p>Los siguientes términos indican una relación de conceptos. Identifique la opción que corresponda
+                    según sea su relación: AUTO - GARAJE</p>
+                <input type="radio" name="q9" value="a">Comedor – Hambre<br>
+                <input type="radio" name="q9" value="b">Avión – Hangar<br>
+                <input type="radio" name="q9" value="c">Profesor – Laboratorio<br>
+                <input type="radio" name="q9" value="d">Computador – Programación<br>
+            </div>
+            <div class="pregunta">
+                <p> Identifique la palabra que No tiene relación con las otras: </p>
+                <input type="radio" name="q10" value="a">caballo<br>
+                <input type="radio" name="q10" value="b">vaca<br>
+                <input type="radio" name="q10" value="c">ballena<br>
+                <input type="radio" name="q10" value="d">cocodrilo<br>
+            </div>
+            <div class="pregunta">
+                <p> Interprete el significado que mejor se ajuste al siguiente refrán. <b>"Lo barato sale caro"</b></p>
+                <input type="radio" name="q11" value="a">Se debe aprovechar las ofertas y descuentos en los
+                supermercados<br>
+                <input type="radio" name="q11" value="b">La calidad no es importante el precio sí, a menor precio más
+                producto<br>
+                <input type="radio" name="q11" value="c">Si compramos algo barato y no nos fijamos en la calidad podemos
+                salir perjudicados.<br>
+                <input type="radio" name="q11" value="d">Lo barato es más económico y nos beneficia en el ahorro<br>
+            </div>
+            <div class="pregunta">
+                <p><b>Lea el siguiente texto periodístico</b><br><br>En 1912, el investigador británico Almroth Wright
+                    escribió una carta que sostenía que las mujeres no debían votar y de hecho deberían mantenerse
+                    alejadas de la política, debido a supuestas de ciencias psicológicas y fisiológicas. Lógicamente,
+                    aquella carta provocó indignación y un aluvión de cartas dirigidas al periódico. (Fragmento).
+                    <br><br>
+                    <b>Inferir lo que provoco el investigador británico Almroth Wright al enviar su carta al
+                        periódico:</b>
+                </p>
+                <input type="radio" name="q12" value="a">El apoyo por parte de la sociedad para que la mujer no
+                participe en la política<br>
+                <input type="radio" name="q12" value="b">Campañas para tratar los casos de ciencias psicológicas y
+                fisiológicas<br>
+                <input type="radio" name="q12" value="c">El descontento de la sociedad machista por no acceder a su
+                pedido<br>
+                <input type="radio" name="q12" value="d">El descontento y la indignación por la discriminación a las
+                mujeres<br>
+            </div>
+            <div class="pregunta">
+                <p><b> Lea el siguiente texto e infiera la idea central.</b><br><br><b>SIN PLÁSTICOS</b><br>
+                    El problema ambiental que generan las bolsas de plásticos es una lucha muy significativa que se
+                    lleva a cabo en contra de las empresas que fabrican este producto por la contaminación que provocan,
+                    ya que cada año se consumen a nivel mundial 500.000 millones de bolsas de plástico las mismas que
+                    después de su uso terminan en ríos, mares y océanos de nuestro planeta, provocando la muerte por
+                    asfixia de especies marinas.
+                </p>
+                Seleccione una:<br>
+                <input type="radio" name="q13" value="a">La muerte de las especies marinas es ocasionada por
+                envenenamiento de químicos tóxicos<br>
+                <input type="radio" name="q13" value="b">El consumo mundial de fundas plásticas dinamiza la economía por
+                su fabricación<br>
+                <input type="radio" name="q13" value="c">Las bolsas de plástico generan contaminación ambiental y la
+                muerte por asfixia de especies marinas<br>
+                <input type="radio" name="q13" value="d">Los problemas ambientales provocan malestar a las fábricas que
+                producen las bolsas de plástico<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Los siguientes términos indican una relación de conceptos. Identifique la opción que corresponda
+                    según sea su relación: FÉRTIL - ESTÉRIL</p>
+                <input type="radio" name="q14" value="a">Conocimiento – Ignorancia<br>
+                <input type="radio" name="q14" value="b">Pacífico – Tranquilo<br>
+                <input type="radio" name="q14" value="c">Diente – Boca<br>
+                <input type="radio" name="q14" value="d">Feto - Niño<br>
+            </div>
+            <div class="pregunta">
+                <p>En las siguientes oraciones identifique la que no pertenece a su categoría</p>
+                <input type="radio" name="q15" value="a">El perro juega con su pelota<br>
+                <input type="radio" name="q15" value="b">María compra el periódico<br>
+                <input type="radio" name="q15" value="c">¿Dónde está María?<br>
+                <input type="radio" name="q15" value="d">Nosotros estamos de viaje<br>
+            </div>
+            <div class="pregunta">
+                <p>Los siguientes términos indican una relación de conceptos. Identifique la opción que corresponda:
+                    ENFERMO - VIRUS</p>
+                <input type="radio" name="q16" value="a">Violento – Paciente<br>
+                <input type="radio" name="q16" value="b">Comida – Sed<br>
+                <input type="radio" name="q16" value="c">Estudiante - Acoso<br>
+                <input type="radio" name="q16" value="d">Reo - Delito<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Interprete el significado que mejor se ajuste al siguiente refrán: <b>"El hábito no hace al
+                        monje"</b> </p>
+
+                <input type="radio" name="q17" value="a">Debemos vestirnos moderadamente para no llamar la atención<br>
+                <input type="radio" name="q17" value="b">El exterior de una persona no siempre proyecta lo que
+                verdaderamente es<br>
+                <input type="radio" name="q17" value="c">La vestimenta siempre habla muy bien de nosotros, por eso
+                debemos vestirnos bien<br>
+                <input type="radio" name="q17" value="d">Dependiendo de la vestimenta podemos identificar a las
+                personas<br>
+            </div>
+
+            <div class="pregunta">
+                <p>De las siguientes opciones elija aquella palabra que tiene un significado diferente al grupo que se
+                    presenta</p>
+
+                <input type="radio" name="q18" value="a">Deterioro<br>
+                <input type="radio" name="q18" value="b">Merma<br>
+                <input type="radio" name="q18" value="c">Erosión<br>
+                <input type="radio" name="q18" value="d">Cultivar<br>
+            </div>
+
+            <div class="pregunta">
+                <p> Interprete el siguiente refrán: <b>"Ruin es quien por ruin se tiene."</b></p>
+                <input type="radio" name="q19" value="a">La autoestima es importante para perder la personalidad<br>
+                <input type="radio" name="q19" value="b">El hombre es lo que piensa de sí mismo<br>
+                <input type="radio" name="q19" value="c">Los hombres malos seguirán siendo malos, aunque digan lo
+                contrario<br>
+                <input type="radio" name="q19" value="d">No solo hay que ser honrados, sino también parecerlo<br>
+            </div>
+
+            <div class="pregunta">
+                <p>De las siguientes opciones elija aquella palabra que tiene un significado diferente al grupo que se
+                    presenta</p>
+                <input type="radio" name="q20" value="a">reconocimiento<br>
+                <input type="radio" name="q20" value="b">creencia<br>
+                <input type="radio" name="q20" value="c">dogma<br>
+                <input type="radio" name="q20" value="d">postración<br>
+            </div>
+            <!--PREGUNTA 21 a la 40 LOGICO-->
+            <div class="pregunta">
+                <p>Petro y Pedro son hermanos. Al sumar sus edades se obtiene un total de 35 años. Además, Petro es 5
+                    años menor que su hermano Pedro. Calcular la edad de Pedro y de Petro.</p>
+                <input type="radio" name="q21" value="a">Pedro: 20 años; Petro: 15 años<br>
+                <input type="radio" name="q21" value="b">Pedro: 35 años; Petro: 30 años<br>
+                <input type="radio" name="q21" value="c">Pedro: 15 años; Petro: 10 años<br>
+                <input type="radio" name="q21" value="d">Pedro: 25 años; Petro: 20 años<br>
+            </div>
+
+            <div class="pregunta">
+                <p>En la bandera del instituto Keller de forma triangular se determina que, al medir sus ángulos
+                    internos, estos cumplen con una progresión aritmética en donde el menor de ellos tiene un valor de
+                    33,16°. Determinar el valor del ángulo interno de mayor valor.</p>
+                <input type="radio" name="q22" value="a">El ángulo interno mayor mide 86,88°<br>
+                <input type="radio" name="q22" value="b">El ángulo interno mayor mide 86,48°<br>
+                <input type="radio" name="q22" value="c">El ángulo interno mayor mide 88,84°<br>
+                <input type="radio" name="q22" value="d">El ángulo interno mayor mide 86,84°<br>
+            </div>
+
+            <div class="pregunta">
+                <p>La empresa de transporte Lync ofrece dos tarifas para un servicio de entrega. La tarifa A es de
+                    $10,00 más $2,00 por cada kilogramo de peso del paquete. La tarifa B es de $5,00 más $4,00 por cada
+                    kilogramo de peso del paquete. Francis necesita enviar un paquete que pesa 8 kilogramos. Determinar
+                    la tarifa que a Francis le conviene más económicamente, seleccionando los signos correctos en la
+                    siguiente operación para comparar las tarifas:</p><br>
+                10 + 2____ (8) ____ 4 ____ (8) + 5 <br><br>
+                <input type="radio" name="q23" value="a"><img src="images/1a.png" class="rectangulo"><br>
+                <input type="radio" name="q23" value="b"><img src="images/1b.png" class="rectangulo"><br>
+                <input type="radio" name="q23" value="c"><img src="images/1c.png" class="rectangulo"><br>
+                <input type="radio" name="q23" value="d"><img src="images/1d.png" class="rectangulo"><br>
+            </div>
+            <div class="pregunta">
+                <p>Sandra es una estudiante que realiza sus estudios universitarios en Estados Unidos. Sus padres le
+                    envían cierta cantidad de dinero para cubrir sus gastos. Sandra destina:</p>
+                <p>1/2 para el pago del alquiler del departamento donde habita, 1/4 para pagar los servicios básicos,
+                    1/16 para pagar su tarjeta de transporte público, 1/8 para su alimentación.</p>
+                <p>Al final del mes le sobran $133,33 para otros gastos. Calcular el total de dinero que sus padres le
+                    envían a Sandra para su manutención. </p>
+                <input type="radio" name="q24" value="a">$ 2 133,82<br>
+                <input type="radio" name="q24" value="b">$ 2 133,28<br>
+                <input type="radio" name="q24" value="c">$ 2 313,28<br>
+                <input type="radio" name="q24" value="d">$ 2 131,28<br>
+            </div>
+
+            <div class="pregunta">
+                <p>El triatleta Swing está entrenando para una competencia que consta de natación, ciclismo y carrera.
+                    Durante su entrenamiento, ha estado siguiendo un plan en el que nada durante 30 minutos a una
+                    velocidad constante de 2 km/h, luego pasa a ciclismo durante 1 hora a una velocidad de 20 km/h y
+                    finalmente corre durante 30 minutos a una velocidad de 20 km/h. Calcular la distancia total
+                    recorrida por el atleta en su entrenamiento de triatlón.</p>
+                <input type="radio" name="q25" value="a">33 km<br>
+                <input type="radio" name="q25" value="b">30 km<br>
+                <input type="radio" name="q25" value="c">32 km<br>
+                <input type="radio" name="q25" value="d">31 km<br>
+            </div>
+
+            <div class="pregunta">
+                <p>El ingeniero Alex se encuentra diseñando la cubierta de un galpón industrial. Para este tipo de
+                    construcciones se establece que el ángulo de inclinación entre el techo y la columna deberá ser de
+                    40 grados menos que el doble de la medida de su ángulo suplementario. Diseña el ángulo que deberá
+                    tener la cubierta respecto a su columna del galpón.</p>
+                <input type="radio" name="q26" value="a">160,76 grados<br>
+                <input type="radio" name="q26" value="b">106,76 grados<br>
+                <input type="radio" name="q26" value="c">106,67 grados<br>
+                <input type="radio" name="q26" value="d">160,67 grados<br>
+            </div>
+
+            <div class="pregunta">
+                <p>El concesionario de automóviles ASAC ofrece dos modelos de vehículos: sedán y SUV. El precio base de
+                    un sedán es $20 000,00 y el precio base de un SUV es $30 000,00. Además, el concesionario ofrece
+                    descuentos de 10% en los sedanes y recargos del 5% en los SUV. Si un cliente decide comprar un sedán
+                    y un SUV, Calcular el costo total de la compra seleccionando los signos correctos en la operación:
+                </p><br>
+                20 000,00 ____ 0,90 ____30 000,00 ____1,05 = ?<br><br>
+                <input type="radio" name="q27" value="a"><img src="images/1e.png" class="rectangulo"><br>
+                <input type="radio" name="q27" value="b"><img src="images/1f.png" class="rectangulo"><br>
+                <input type="radio" name="q27" value="c"><img src="images/1g.png" class="rectangulo"><br>
+                <input type="radio" name="q27" value="d"><img src="images/1h.png" class="rectangulo"><br>
+            </div>
+
+            <div class="pregunta">
+                <p>El instituto Iñaquito cada verano realiza una competencia interna de matemáticas que consta de 3
+                    rondas, en la primera ronda compitieron 60 estudiantes, en la segunda ronda compitieron 20
+                    estudiantes menos que en la primera ronda, y en la última ronda quedaron solo 10 estudiantes.
+                    Determinar el total de estudiantes que participaron en la competencia.</p>
+                <input type="radio" name="q28" value="a">130 estudiantes<br>
+                <input type="radio" name="q28" value="b">110 estudiantes<br>
+                <input type="radio" name="q28" value="c">120 estudiantes<br>
+                <input type="radio" name="q28" value="d">100 estudiantes<br>
+            </div>
+
+            <div class="pregunta">
+                <p>A Silvia le descuentan un 6,28% de su salario debido a una falta disciplinaria y recibe la cantidad
+                    de $2 437,89. Determinar el valor del salario del mes de anterior previo a aplicarse su sanción
+                    disciplinaria.</p>
+                <input type="radio" name="q29" value="a">$ 2 601,52<br>
+                <input type="radio" name="q29" value="b">$ 2 601,25<br>
+                <input type="radio" name="q29" value="c">$ 2 610,52<br>
+                <input type="radio" name="q29" value="d">$ 2 610,25<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Patricio está preocupado sobre su aprobación en la asignatura de Investigación Científica. Las
+                    calificaciones de sus evaluaciones pasadas son:</p>
+                    <p>Evaluación 1: 9,54 puntos.<br>Evaluación 2: 7,35
+                    puntos.<br>Evaluación 3: 5,25 puntos.<br>Evaluación 4: 5,69 puntos.<br><br>Para aprobar su curso requiere una
+                    nota mínima de 7 puntos como promedio final. Determinar la nota que el estudiante debe obtener en su
+                    examen final con el fin de aprobar la materia.</p>
+                <input type="radio" name="q30" value="a">7,71<br>
+                <input type="radio" name="q30" value="b">7,11<br>
+                <input type="radio" name="q30" value="c">7,77<br>
+                <input type="radio" name="q30" value="d">7,17<br>
+            </div>
+            <div class="pregunta">
+                <p>En la planta de elaboración de cosméticos Belle, se detecta que en el primer turno de operación, 13
+                    trabajadores y 18 auxiliares de producción no han asistido. Si el total de trabajadores de la planta
+                    es de 767 trabajadores, determinar el porcentaje de trabajadores que efectivamente vinieron a
+                    trabajar en el primer turno.</p>
+                <input type="radio" name="q31" value="a">95,69%<br>
+                <input type="radio" name="q31" value="b">96,96%<br>
+                <input type="radio" name="q31" value="c">95,99%<br>
+                <input type="radio" name="q31" value="d">95,96%<br>
+            </div>
+
+            <div class="pregunta">
+                <p>El estudiante Robert Klein no logró alcanzar el puntaje necesario para aprobar en tres asignaturas:
+                    matemáticas, literatura e idiomas. El estudiante Klein diseña un plan de estudio que incluye dedicar
+                    el 35% de su tiempo al estudio de matemáticas, el 25% al estudio de literatura y el resto a idiomas.
+                    Si el estudiante tiene un total de 30 horas para estudiar esta semana, calcular el número de horas
+                    que debería dedicar al estudio de idiomas</p>
+                <input type="radio" name="q32" value="a">12 horas<br>
+                <input type="radio" name="q32" value="b">8 horas<br>
+                <input type="radio" name="q32" value="c">10 horas<br>
+                <input type="radio" name="q32" value="d">14 horas<br>
+            </div>
+            <div class="pregunta">
+                <p>En una competencia de atletismo, Gina entrena tres tipos de ejercicios: carrera, saltos y
+                    lanzamiento. Sus puntuaciones son: 60, 40 y 25 respectivamente. Si el reglamento penaliza con 45
+                    puntos menos al total por cada puntuación menor a 35 puntos. Determinar las operaciones adecuadas
+                    para encontrar el puntaje total.</p>
+                <input type="radio" name="q33" value="a"><img src="images/1i.png" class="rectangulo"><br>
+                <input type="radio" name="q33" value="b"><img src="images/1j.png" class="rectangulo"><br>
+                <input type="radio" name="q33" value="c"><img src="images/1k.png" class="rectangulo"><br>
+                <input type="radio" name="q33" value="d"><img src="images/1l.png" class="rectangulo"><br>
+            </div>
+            <div class="pregunta">
+                <p>Ramón revisa una promoción que anuncia un descuento del 17,5% en artículos seleccionados para niños.
+                    Una camisa marca un precio final de $39,79 al aplicarse el descuento. El cliente requiere determinar
+                    el precio original de la camisa para regalarla a su hijo.</p>
+                <input type="radio" name="q34" value="a">$48,23<br>
+                <input type="radio" name="q34" value="b">$48,28<br>
+                <input type="radio" name="q34" value="c">$48,38<br>
+                <input type="radio" name="q34" value="d">$48,32<br>
+            </div>
+            <div class="pregunta">
+                <p>En la pizzería KDELI se prepara una pizza para cinco personas, donde se utilizan 270 gramos de queso,
+                    320 gramos de harina y 170 gramos de embutidos. Determinar las cantidades para la nueva receta si se
+                    requiere preparar una pizza para 17 personas.</p>
+                <input type="radio" name="q35" value="a">Harina: 1 808 gramos, Embutidos: 587 gramos, Queso: 918
+                gramos<br>
+                <input type="radio" name="q35" value="b">Embutidos: 578 gramos, Queso: 908 gramos, Harina: 1 088
+                gramos<br>
+                <input type="radio" name="q35" value="c">Queso: 918 gramos, Harina: 1088 gramos, Embutidos: 578
+                gramos<br>
+                <input type="radio" name="q35" value="d">Queso: 918 gramos, Harina: 1808 gramos, Embutidos: 578
+                gramos<br>
+            </div>
+            <div class="pregunta">
+                <p>En un cultivo de bacterias hay tres tipos: tipo A, tipo B y tipo C, sus tasas de crecimiento son
+                    diferentes. El total de bacterias en el cultivo es de 9600. Si se sabe que el número de bacterias
+                    tipo B es tres veces el número de bacterias tipo C, y el número de bacterias tipo A es el doble del
+                    número de bacterias tipo B. Calcular el número total de bacterias de cada tipo en el cultivo.</p>
+                <input type="radio" name="q36" value="a"><img src="images/1m.png" class="cuadrado"><br>
+                <input type="radio" name="q36" value="b"><img src="images/1n.png" class="cuadrado"><br>
+                <input type="radio" name="q36" value="c"><img src="images/1o.png" class="cuadrado"><br>
+                <input type="radio" name="q36" value="d"><img src="images/1p.png" class="cuadrado"><br>
+            </div>
+            <div class="pregunta">
+                <p>Thomas está planificando su horario para el próximo semestre en la universidad. Tiene que tomar tres
+                    cursos: matemáticas, comunicación y ciencias. Los costos por crédito son $150 para matemáticas, $120
+                    para comunicación y $140 para ciencias. Tienen 4 créditos, 3 créditos y 5 créditos respectivamente.
+                    Si el estudiante desea inscribirse en estos tres cursos, calcular el costo de la matrícula.</p>
+                <input type="radio" name="q37" value="a">$1 666,0<br>
+                <input type="radio" name="q37" value="b">$1 606,0<br>
+                <input type="radio" name="q37" value="c">$1 660,0<br>
+                <input type="radio" name="q37" value="d">$1 600,0<br>
+            </div>
+            <div class="pregunta">
+                <p> Mariana encuentra una oferta en una tienda donde aplican un 20% de descuento en 
+                    mochilas escolares. Después de aplicar el descuento, el precio final de una mochila es de 
+                    $36,00. Mariana quiere conocer el precio original de la mochila.</p>
+                <input type="radio" name="q38" value="a">$45,00<br>
+                <input type="radio" name="q38" value="b">$44,00<br>
+                <input type="radio" name="q38" value="c">$43,50<br>
+                <input type="radio" name="q38" value="d">$42,00<br>
+            </div>
+            <div class="pregunta">
+                <p>En el concurso de matemáticas "Números" participan Marta y Juan. El doble del número de puntos
+                    ganados por Marta es igual a los puntos ganados por Juan. Si Marta hubiera ganado 10 puntos más y
+                    Juan hubiera ganado el triple de sus puntos originales, Marta tendría el cuádruple de los puntos de
+                    Juan. Calcular el número de puntos que ganó cada uno.</p>
+
+                <input type="radio" name="q39" value="a">Marta ganó 3 puntos y Juan ganó 0,75 puntos<br>
+                <input type="radio" name="q39" value="b">Marta ganó 2 puntos y Juan ganó 1 punto<br>
+                <input type="radio" name="q39" value="c">Marta ganó 4 puntos y Juan ganó 1 punto<br>
+                <input type="radio" name="q39" value="d">Marta ganó 5 puntos y Juan ganó 1,25 puntos<br>
+            </div>
+            <div class="pregunta">
+                <p>El consumidor Kall de electricidad está revisando su factura mensual. La factura indica que ha
+                    consumido 450 kWh de electricidad durante el mes. El costo por cada kWh es de $0,12. Si hay un cargo
+                    adicional de $10 en cada factura, calcular el monto total de la factura eléctrica, identificando las
+                    operaciones correctas.</p>
+
+                <input type="radio" name="q40" value="a"><img src="images/1q.png" class="rectangulo"><br>
+                <input type="radio" name="q40" value="b"><img src="images/1r.png" class="rectangulo"><br>
+                <input type="radio" name="q40" value="c"><img src="images/1s.png" class="rectangulo"><br>
+                <input type="radio" name="q40" value="d"><img src="images/1t.png" class="rectangulo"><br>
+            </div>
+
+            <!--ATENCION Y CONCENTRACION-->
+            <div class="pregunta">
+                <p>Carolina es analista en un centro comercial, ella se encuentra guardando información de los productos
+                    para lo cual debe digitar en una tabla Excel una lista de códigos para poder obtener el nombre de
+                    los productos, los cuales están formados por números y signos, pero al momento de obtener los
+                    nombres de los productos aparece un error de código. Identifique en qué grupo se encuentra el error.
+                </p>
+                <p>1. (1%58001$765&85511)<br>2. (1%58001$765&85511)<br>3. (1%58001$765&85511)<br>4. (1%58001$795&85511)</p>
+                <input type="radio" name="q41" value="a">3<br>
+                <input type="radio" name="q41" value="b">4<br>
+                <input type="radio" name="q41" value="c">2<br>
+                <input type="radio" name="q41" value="d">1<br>
+            </div>
+
+            <!-- Preguntas de q42 a q80 -->
+            <div class="pregunta">
+                <p>Geovany y Samuel están llenando un álbum de cromos, cada cromo tiene una letra; Samuel quiere
+                    identificar, cuál es la letra de los cromos que NO se repite.</p>
+                <img src="images/1u.png" alt="tabla de letras"><br>
+                <input type="radio" name="q42" value="a">y<br>
+                <input type="radio" name="q42" value="b">q<br>
+                <input type="radio" name="q42" value="c">p<br>
+                <input type="radio" name="q42" value="d">d<br>
+            </div>
+            <div class="pregunta">
+                <p>José, docente en una unidad educativa, asigna una tarea a sus estudiantes; para esto entrega una
+                    cuadricula con el abecedario, cada letra representada por dos dígitos; pidiéndoles identificar a qué
+                    serie representa a la siguiente palabra: GLICERINA</p>
+                <img src="images/1v.png" alt="tabla de letras y numeros"><br>
+                <input type="radio" name="q43" value="a">482260207808327700<br>
+                <input type="radio" name="q43" value="b">482232057991127700<br>
+                <input type="radio" name="q43" value="c">482232457808327700<br>
+                <input type="radio" name="q43" value="d">482232457824307700<br>
+            </div>
+            <div class="pregunta">
+                <p>Pilar quiere descifrar la clave de la cerradura de su oficina. Para abrir la cerradura debe utilizar
+                    la clave que es PILAR. Cada letra de la clave está representada por dos números. Se proporciona una
+                    tabla con las letras y los números para descifrar la clave. ¿Cuál es la combinación de números?</p>
+                <img src="images/1w.png" alt="tabla de letras y numeros"><br>
+                <input type="radio" name="q44" value="a">3965363113<br>
+                <input type="radio" name="q44" value="b">3965927813<br>
+                <input type="radio" name="q44" value="c">3965367817<br>
+                <input type="radio" name="q44" value="d">3965367813<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Marco se encuentra en una clase de lengua y literatura, en esta la docente le asigna una tarea
+                    brindándole como recursos dos cuadriculas, indicando que deben identificar la oración que se forma
+                    en la cuadricula número dos al elegir cada uno de los cuadros que contiene un patrón en la primera
+                    cuadricula. Identifique la oración que corresponde.</p>
+                <table>
+                    <tr>
+                        <th>CUADRICULA 1</th>
+                        <th>CUADRICULA 2</th>
+                    </tr>
+                    <tr>
+                        <td><img src="images/1x.png" alt="tabla 1"></td>
+                        <td><img src="images/1y.png" alt="tabla 2"></td>
+                    </tr>
+                </table><br>
+                Seleccione una: <br>
+                <input type="radio" name="q45" value="a">Los alumnos que no realizaron las tareas fueron llamados la
+                atención<br>
+                <input type="radio" name="q45" value="b">Las alumnas que no rindieron el examen fueron llamadas la
+                atención<br>
+                <input type="radio" name="q45" value="c">Los alumnos que no rindieron el examen fueron llamados la
+                atención<br>
+                <input type="radio" name="q45" value="d">Los padres que no asistieron a las reuniones fueron llamados la
+                atención<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Danna se encuentra en su unidad educativa, su maestra le asigna una tarea; para esto entrega una
+                    cuadricula con el abecedario, cada letra representada por dos dígitos; pidiéndole identicar a qué
+                    serie representa a la siguiente palabra:</p>
+                <b>COLORES</b><br>
+                <img src="images/1z.png" alt="tabla letras y numeros"><br>
+                <input type="radio" name="q46" value="a">54242106040805<br>
+                <input type="radio" name="q46" value="b">54082106087805<br>
+                <input type="radio" name="q46" value="c">54062086087805<br>
+                <input type="radio" name="q46" value="d">54062106087805<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Edison es docente en una unidad educativa y asigna una tarea a sus estudiantes. Les entrega una
+                    plantilla con dos cuadriculas, en las cuales deben identificar la palabra que se forma con las
+                    letras que se obtienen de la cuadricula 2. Se debe elegir el cuadro que contiene un patrón en la
+                    cuadricula 1. Identifique la palabra correcta.</p>
+                <table>
+                    <tr>
+                        <th>CUADRICULA 1</th>
+                        <th>CUADRICULA 2</th>
+                    </tr>
+                    <tr>
+                        <td><img src="images/2a.png" alt="tabla 1"></td>
+                        <td><img src="images/2b.png" alt="tabla 2"></td>
+                    </tr>
+                </table><br>
+                <b>Seleccione una:</b><br>
+                <input type="radio" name="q47" value="a">membrete<br>
+                <input type="radio" name="q47" value="b">membruda<br>
+                <input type="radio" name="q47" value="c">membrillo<br>
+                <input type="radio" name="q47" value="d">membrana<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Alejandro está en clases de ortografía y la docente le pide identificar cuántas parejas del grupo de
+                    letras (mn) hay en el siguiente grupo de letras. Seleccione la respuesta que corresponda.</p>
+                <img src="images/2c.png" alt="tabla nm"><br>
+                <input type="radio" name="q48" value="a">6<br>
+                <input type="radio" name="q48" value="b">7<br>
+                <input type="radio" name="q48" value="c">4<br>
+                <input type="radio" name="q48" value="d">5<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Arturo se encuentra en clase de lengua y literatura, la docente ha notado en el estudiante ciertos
+                    problemas de disgrafia, para ayudar a mejorar su condición le entrega una plantilla donde deberá
+                    identificar cuántas letras d y b hay en dicha plantilla.</p>
+                <img src="images/2d.png" alt="tabla letras"><br>
+                <input type="radio" name="q49" value="a">d=17, b=15<br>
+                <input type="radio" name="q49" value="b">b=14, d=18<br>
+                <input type="radio" name="q49" value="c">d=19, b=15<br>
+                <input type="radio" name="q49" value="d">b=15, d=16<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Jesica está realizando una tarea en clase, la docente Doménica pide identificar cuántas palabras
+                    infiltradas hay en la cuadrícula que les presenta. Selecciona la respuesta que corresponda.</p>
+                <img src="images/2e.png" alt="tabla palabra huevo"><br>
+                <input type="radio" name="q50" value="a">5<br>
+                <input type="radio" name="q50" value="b">4<br>
+                <input type="radio" name="q50" value="c">6<br>
+                <input type="radio" name="q50" value="d">3<br>
+            </div>
+            <div class="pregunta">
+                <p>Adolfo está clasificando por números y letras los productos de aseo personal y quiere identificar en
+                    la cuadrícula, cuántas parejas de productos de aseo hay en bodega.</p>
+                <img src="images/2f.png" alt="tabla par numero letra"><br>
+                <input type="radio" name="q51" value="a">3<br>
+                <input type="radio" name="q51" value="b">5<br>
+                <input type="radio" name="q51" value="c">6<br>
+                <input type="radio" name="q51" value="d">8<br>
+
+            </div>
+            <div class="pregunta">
+                <p>Jorge se encuentra rindiendo una evaluación de atención y concentración para renovar su licencia de
+                    conducir, en esta evaluación se encuentra con dos nombres y dos direcciones que deberá identificar
+                    si son iguales o diferentes, debiendo ser muy detallista en cuanto a los signos: comas, tildes,
+                    puntos, etc. Identifique cuál es la respuesta correcta.</p>
+                <img src="images/2g.png" alt="tabla nombre direccion"><br>
+                <input type="radio" name="q52" value="a">Dirección distinta y nombre igual<br>
+                <input type="radio" name="q52" value="b">Nombres y direcciones iguales<br>
+                <input type="radio" name="q52" value="c">Nombres y direcciones distintos<br>
+                <input type="radio" name="q52" value="d">Nombre distinto y dirección igual<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Identifique la palabra que No tiene relación con las otras.</p>
+                <input type="radio" name="q53" value="a">automóvil<br>
+                <input type="radio" name="q53" value="b">camión<br>
+                <input type="radio" name="q53" value="c">tren<br>
+                <input type="radio" name="q53" value="d">buque<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Enrique quiere descubrir cuál es el código numérico para ingresar al aula virtual. La clave para
+                    descifrar el código es el nombre de una persona, para lo cual debe guiarse considerando que a cada
+                    letra le corresponde dos números. El nombre es JULIO. A continuación, se expone la tabla para
+                    descifrar el código del aula virtual.</p>
+                <img src="images/2h.png" alt="tabla letra valor"><br>
+                <input type="radio" name="q54" value="a">3172365887<br>
+                <input type="radio" name="q54" value="b">3172366592<br>
+                <input type="radio" name="q54" value="c">3172876587<br>
+                <input type="radio" name="q54" value="d">3172366587<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Raúl un adolescente diagnosticado con dislexia se encuentra en su terapia, en esta le entregan una
+                    plantilla en la cual deberá identificar cuántas letras p, b y d hay en la misma. Identificar cuántas
+                    letras (p) y (b) hay en la plantilla.</p>
+                <img src="images/2i.png" alt="tabla p y b"><br>
+                <input type="radio" name="q55" value="a">p=9, b=11<br>
+                <input type="radio" name="q55" value="b">p=10, b=12<br>
+                <input type="radio" name="q55" value="c">p=11, b=9<br>
+                <input type="radio" name="q55" value="d">p=11, b=10<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Juan y Gerardo están armando un rompecabezas, cada una de estas piezas se encuentran marcadas por una
+                    letra del abecedario, las piezas están desordenadas alfabéticamente. Gerardo desea identificar
+                    cuántas letras (q) hay en el rompecabezas para poder armarlo de la mejor manera.</p>
+                <img src="images/2j.png" alt="tabla q"><br>
+                <input type="radio" name="q56" value="a">11<br>
+                <input type="radio" name="q56" value="b">15<br>
+                <input type="radio" name="q56" value="c">14<br>
+                <input type="radio" name="q56" value="d">13<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Samanta quiere identificar el código del celular de David, dicho código está cifrado en números y
+                    letras. De acuerdo a la letra va el número. A continuación, se proporciona las letras para descifrar
+                    el código numérico del celular de David.</p>
+                <p>Código: 0 1 2 3 4 5 6 7 8 9 E M D A O C L I G N</p>
+                <p>Palabra: D O M E N I C A </p>
+                <b>Seleccione una:</b><br>
+                <input type="radio" name="q57" value="a">5 7 2 9 0 1 2 4<br>
+                <input type="radio" name="q57" value="b">9 7 2 0 3 4 5 1<br>
+                <input type="radio" name="q57" value="c">3 1 0 4 7 9 5 3<br>
+                <input type="radio" name="q57" value="d">2 4 1 0 9 7 5 3<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Jorge se enlistó al servicio militar, él pertenece al primer pelotón que está compuesto por 20
+                    conscriptos formados en 4 filas de 5, ellos deben formarse en orden de estatura de menor a mayor por
+                    lo que requieren identificar en qué orden deben formarse. Pedro mide 1.75, Jorge mide 6cm más que
+                    Pedro, Esteban mide 1cm más que Pedro, Carlos mide 3cm más que Esteban, Orlando mide 4cm menos que
+                    Jorge. Identifique el orden en el cual deben formarse de menor a mayor.</p>
+                <b>Seleccione una:</b><br>
+                <input type="radio" name="q58" value="a">Pedro, Esteban, Orlando, Carlos, Jorge<br>
+                <input type="radio" name="q58" value="b">Orlando, Pedro, Jorge, Esteban, Carlos<br>
+                <input type="radio" name="q58" value="c">Pedro, Orlando, Jorge, Esteban, Carlos<br>
+                <input type="radio" name="q58" value="d">Jorge, Esteban, Pedro, Orlando, Carlos<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Kevin se encuentra en una evaluación psicológica para conocer su nivel de atención y concentración,
+                    para esto le presentan una plantilla con dos cuadrículas, en las cuales deberá identificar la
+                    palabra que se forma en la cuadrícula 2 al elegir el cuadro que contiene un patrón en la cuadrícula
+                    1 ordenadamente. Identifique la palabra correcta.</p>
+                <table>
+                    <tr>
+                        <th>CUADRICULA 1</th>
+                        <th>CUADRICULA 2</th>
+                    </tr>
+                    <tr>
+                        <td><img src="images/2k.png" alt="tabla 1"></td>
+                        <td><img src="images/2l.png" alt="tabla 2"></td>
+                    </tr>
+                </table><br>
+                <input type="radio" name="q59" value="a">PERVERCIÓN<br>
+                <input type="radio" name="q59" value="b">PERCHARON<br>
+                <input type="radio" name="q59" value="c">PERCEPCIÓN<br>
+                <input type="radio" name="q59" value="d">PERSUACIÓN<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Soledad es docente en una unidad educativa, para mejorar el nivel de concentración de sus estudiantes
+                    ella les dicta una palabra y les indica que encuentren el inverso de la misma. Identifica el inverso
+                    de la siguiente palabra: administrativamente </p>
+                <input type="radio" name="q60" value="a">etnemvaitartsinimda<br>
+                <input type="radio" name="q60" value="b">etnemavitartsinimda<br>
+                <input type="radio" name="q60" value="c">tenemavitartsinimda<br>
+                <input type="radio" name="q60" value="d">etnmeavitartsinimda<br>
+            </div>
+            <!--LOGICO-->
+            <div class="pregunta">
+                <p>Un investigador necesita acceder a información encriptada. Para ello, se requiere completar una
+                    contraseña dada a través de 5 elementos que obedecen a la siguiente sucesión alfabética:</p>
+                AZ, BY, CX, DW, <br>
+                <p>Seleccionar el quinto elemento que completará la sucesión, para desbloquear el acceso a la
+                    información. </p>
+                <input type="radio" name="q61" value="a">EZ<br>
+                <input type="radio" name="q61" value="b">EU<br>
+                <input type="radio" name="q61" value="c">EV<br>
+                <input type="radio" name="q61" value="d">AV<br>
+            </div>
+
+            <div class="pregunta">
+                <p> La tribu mística Albares conocida por su profundo conocimiento matemático, ha guardado una secuencia
+                    numérica ancestral. Esta secuencia contiene mensajes codificados que sólo pueden ser desentrañados a
+                    través de un patrón matemático.</p>
+                Los términos son: 5, 12, 22, 35, <br>
+                <p>Calcular el próximo número en la secuencia para revelar el oculto misterio detrás de ella.</p>
+                <input type="radio" name="q62" value="a">52<br>
+                <input type="radio" name="q62" value="b">49<br>
+                <input type="radio" name="q62" value="c">51<br>
+                <input type="radio" name="q62" value="d">48<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Un investigador necesita acceder a información encriptada, para ello, se requiere completar una
+                    contraseña dada a través de 5 elementos que obedecen a la siguiente sucesión alfabética:</p>
+                oso, oto, ouo, ovo, <br>
+                <p>Seleccionar el quinto elemento que completará la sucesión, para acceder a la información.</p>
+                <input type="radio" name="q63" value="a">owo<br>
+                <input type="radio" name="q63" value="b">oro<br>
+                <input type="radio" name="q63" value="c">oxo<br>
+                <input type="radio" name="q63" value="d">ozo<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Un técnico busca activar una máquina de control numérico computarizado, para lo cual es necesario
+                    completar una contraseña compuesta por una secuencia de cinco palabras. El monitor muestra en
+                    pantalla solo cuatro elementos de la secuencia:</p>
+                imprimir, sentir, escribir, esculpir, <br>
+                <p>Seleccionar la quinta palabra que completará la contraseña.</p>
+                <input type="radio" name="q64" value="a">bailar<br>
+                <input type="radio" name="q64" value="b">condor<br>
+                <input type="radio" name="q64" value="c">comer<br>
+                <input type="radio" name="q64" value="d">invertir<br>
+            </div>
+
+            <div class="pregunta">
+                <p>En una discoteca de la ciudad de Riobamba la consola de un DJ sufre una avería. Para reiniciarla, el
+                    usuario debe completar una contraseña compuesta por una serie numérica de 5 elementos. En la
+                    pantalla se muestran solamente los 4 primeros elementos:</p>
+                16, 32, 96, 384, <br>
+                <p>Seleccionar el quinto elemento correspondiente a la serie, para reiniciar la consola.</p>
+                <input type="radio" name="q65" value="a">1 920<br>
+                <input type="radio" name="q65" value="b">1 918<br>
+                <input type="radio" name="q65" value="c">1 917<br>
+                <input type="radio" name="q65" value="d">1 922<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Un casino ofrece varios premios económicos para quienes ganen una o varias partidas de naipes. Los
+                    premios en dólares se incrementan según el número de partidas ganadas como se muestra en la serie:
+                </p>
+                10, 15, 25, 45, 85, <br>
+                <p>Seleccione el premio económico que otorgará el casino luego de ganar la sexta partida de naipes. </p>
+                <input type="radio" name="q66" value="a">160<br>
+                <input type="radio" name="q66" value="b">165<br>
+                <input type="radio" name="q66" value="c">175<br>
+                <input type="radio" name="q66" value="d">170<br>
+            </div>
+            <div class="pregunta">
+                <p>Un profesor olvida el código de activación de su software de cálculo estructural. La plataforma de
+                    asistencia al usuario muestra un código de activación, el cual, está compuesto por una secuencia de
+                    cinco palabras; y, se muestran solamente cuatro de ellas:</p>
+                candidato, cebolla, circunferencia, cobalto, <br>
+                <p>Seleccionar la quinta palabra que completará la secuencia.</p>
+                <input type="radio" name="q67" value="a">compadre<br>
+                <input type="radio" name="q67" value="b">cuchara<br>
+                <input type="radio" name="q67" value="c">cesantía<br>
+                <input type="radio" name="q67" value="d">camino<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Lorena está rindiendo su evaluación de ingreso a la Universidad, en esta le presentan cuatro grupos
+                    de letras y le indican que debe identificar el número de grupo que contiene las letras que no
+                    pertenecen al resto de grupos.</p>
+                <p>1. (m,l,f,a,p,r,d,n,h,k,t,u,e,c,o,u)<br>2. (l,p,t,r,u,f,e,c,u,k,o.n,h,d,m,a)<br>3.
+                    (f,e,l,b,t,h,u,p,o,k.r,a,d,w,u,m)<br>4. (r,o,k.c,u,n,l,m,a,t,h,p,f,u,d,e)</p>
+                Identificar el número del grupo que contiene dichas letras.<br>
+                <input type="radio" name="q68" value="a">1<br>
+                <input type="radio" name="q68" value="b">2<br>
+                <input type="radio" name="q68" value="c">4<br>
+                <input type="radio" name="q68" value="d">3<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Un investigador debe activar una máquina de ensayos. Para lo cual es necesario que se complete una
+                    contraseña compuesta por una secuencia de cinco palabras. El monitor de la máquina muestra en
+                    pantalla solo cuatro elementos de la secuencia:</p>
+                agotar, enojar, innovar, obviar, <br>
+                <p>Seleccionar la quinta palabra que completará la secuencia</p>
+                <input type="radio" name="q69" value="a">empujar<br>
+                <input type="radio" name="q69" value="b">dibujar<br>
+                <input type="radio" name="q69" value="c">ubicar<br>
+                <input type="radio" name="q69" value="d">escribir<br>
+            </div>
+
+            <div class="pregunta">
+                <p> Para poder acceder a una base de datos de una empresa de tecnología, un ingeniero debe
+                    completar una clave compuesta por una secuencia de cinco palabras.
+                    Como medida de seguridad el ordenador solo muestra cuatro de sus elementos:
+                </p>
+                talento, tapete, termo, test,<br>
+                <p>Seleccionar la quinta palabra que completará la clave de acceso a la base de datos</p>
+                <input type="radio" name="q70" value="a">tez<br>
+                <input type="radio" name="q70" value="b">tomar<br>
+                <input type="radio" name="q70" value="c">tilo<br>
+                <input type="radio" name="q70" value="d">titanio<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Una investigadora de astronomía busca tener acceso a una base de datos nacional. La
+                    plataforma busca comprobar que el usuario no es un robot, para lo cual solicita completar
+                    una secuencia de palabras que se muestra a continuación:</p>
+                carta, cerco, circo, costa,<br>
+                <p>Seleccionar la quinta palabra que completará la secuencia y brindará acceso a la base de
+                    datos</p>
+                <input type="radio" name="q71" value="a">curva<br>
+                <input type="radio" name="q71" value="b">cúspide<br>
+                <input type="radio" name="q71" value="c">cúmulo<br>
+                <input type="radio" name="q71" value="d">cuna<br>
+            </div>
+
+            <div class="pregunta">
+                <p>El docente Jacinto envía de tarea a casa lo siguiente: ordenar cada grupo de letras para
+                    formar un nombre de persona. Identificar cuál de estos nombres NO es el de un hombre</p>
+                <p>1.- TEBORRO<br>
+                    2.- NIBETO<br>
+                    3.- LLERGUIMO<br>
+                    4.- SUNVE</p>
+                <input type="radio" name="q72" value="a">2<br>
+                <input type="radio" name="q72" value="b">4<br>
+                <input type="radio" name="q72" value="c">1<br>
+                <input type="radio" name="q72" value="d">3<br>
+            </div>
+
+            <div class="pregunta">
+                <p> A Sofía le presentan grupos de números en el cual deberá identificar el grupo de números
+                    que no pertenezca al resto de grupos. Identifique la respuesta correcta.</p>
+                01625175985; 01517652985; 01517579825; 01561725985<br><br>
+                <input type="radio" name="q73" value="a">01517652985<br>
+                <input type="radio" name="q73" value="b">01561725985<br>
+                <input type="radio" name="q73" value="c">01517579825<br>
+                <input type="radio" name="q73" value="d">01625175985<br>
+            </div>
+
+            <div class="pregunta">
+                <p>dentifique la palabra que No tiene relación con las otras:</p>
+                <input type="radio" name="q74" value="a">ébano<br>
+                <input type="radio" name="q74" value="b">cobre<br>
+                <input type="radio" name="q74" value="c">plata<br>
+                <input type="radio" name="q74" value="d">oro<br>
+            </div>
+
+            <div class="pregunta">
+                <p> Para acceder a los archivos de una carpeta encriptada es necesario completar una
+                    contraseña compuesta por seis elementos. Se conoce los primeros cinco elementos de la
+                    contraseña como se muestra a continuación:</p>
+                1, 9, 25, 49, 81,<br>
+                <p>Seleccionar el sexto elemento que permitirá completar la contraseña</p>
+                <input type="radio" name="q75" value="a">125<br>
+                <input type="radio" name="q75" value="b">81<br>
+                <input type="radio" name="q75" value="c">100<br>
+                <input type="radio" name="q75" value="d">121<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Un investigador nota que el crecimiento poblacional de conejos obedece a la siguiente
+                    sucesión: </p>
+                1, 1, 2, 3, 5, 8<br>
+                <p>Seleccionar la cantidad de conejos que tendrá el laboratorio en el futuro más cercano</p>
+                <input type="radio" name="q76" value="a">13<br>
+                <input type="radio" name="q76" value="b">11<br>
+                <input type="radio" name="q76" value="c">12<br>
+                <input type="radio" name="q76" value="d">14<br>
+            </div>
+
+            <div class="pregunta">
+                <p> Javier quiere identificar en qué grupo de números hay un número que NO está en los otros
+                    grupos. Seleccione la respuesta que corresponda.</p>
+                184590, 458912, 983540, 841259<br><br>
+                <input type="radio" name="q77" value="a">983540<br>
+                <input type="radio" name="q77" value="b">841259<br>
+                <input type="radio" name="q77" value="c">458912<br>
+                <input type="radio" name="q77" value="d">184590<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Identifique la palabra que No tiene relación con las otras.</p>
+                <input type="radio" name="q78" value="a">sapo<br>
+                <input type="radio" name="q78" value="b">rana<br>
+                <input type="radio" name="q78" value="c">salamandra<br>
+                <input type="radio" name="q78" value="d">víbora<br>
+            </div>
+
+            <div class="pregunta">
+                <p>En una ensambladora de motocicletas un robot sufre una avería. Para reiniciarlo el analista
+                    de sistemas debe acceder a su programación y para ello, es necesario colocar una
+                    contraseña de 5 elementos. Se muestran sus 4 primeros elementos:
+                </p>
+                pan, pcn, pen, pgn<br><br>
+                <input type="radio" name="q79" value="a">pin<br>
+                <input type="radio" name="q79" value="b">pkn<br>
+                <input type="radio" name="q79" value="c">phn<br>
+                <input type="radio" name="q79" value="d">pjn<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Para ingresar a una plataforma virtual un software de seguridad muestra en pantalla los
+                    cuatro primeros números de un código de seguridad.</p>
+                13, 25, 49, 97,<br><br>
+                <input type="radio" name="q80" value="a">195<br>
+                <input type="radio" name="q80" value="b">193<br>
+                <input type="radio" name="q80" value="c">194<br>
+                <input type="radio" name="q80" value="d">198<br>
+            </div>
+            <button id="prevButton" disabled>Anterior</button>
+            <button id="nextButton">Siguiente</button>
+            <h3 id="resultado"></h3>
+            <h3 id="puntaje"></h3>
+            <div id="detalleResultados"></div>
+        </div>
+    </div>
+    <footer>García Moreno y Véloz esquina, Riobamba, Ecuador</footer>
+</body>
+
+</html>
