@@ -21,12 +21,12 @@
             let timer;
             let respuestasCorrectas = {
                 q1: "c", q2: "c", q3: "c", q4: "c", q5: "c", q6: "c", q7: "a", q8: "a", q9: "b", q10: "d", q11: "c", q12: "d",
-                q13: "c", q14: "a", q15: "c", q16: "d", q17: "b", q18: "d", q19: "b", q20: "d", q21: "a", q22: "d", q23: "d",
+                q13: "c", q14: "a", q15: "c", q16: "d", q17: "b", q18: "d", q19: "b", q20: "d", q21: "a", q22: "d", q23: "c",
                 q24: "b", q25: "d", q26: "c", q27: "d", q28: "b", q29: "b", q30: "d", q31: "d", q32: "a", q33: "a", q34: "a",
                 q35: "c", q36: "b", q37: "c", q38: "a", q39: "b", q40: "c", q41: "b", q42: "b", q43: "c", q44: "d", q45: "c",
-                q46: "d", q47: "d", q48: "d", q49: "d", q50: "a", q51: "b", q52: "b", q53: "d", q54: "d", q55: "d", q56: "b",
-                q57: "d", q58: "a", q59: "c", q60: "b", q61: "b", q62: "c", q63: "a", q64: "a", q65: "d", q66: "a", q67: "b",
-                q68: "b", q69: "d", q70: "c", q71: "a", q72: "a", q73: "c", q74: "c", q75: "d", q76: "a", q77: "a", q78: "d",
+                q46: "d", q47: "d", q48: "d", q49: "d", q50: "a", q51: "b", q52: "b", q53: "d", q54: "d", q55: "d", q56: "d",
+                q57: "b", q58: "a", q59: "a", q60: "c", q61: "b", q62: "c", q63: "c", q64: "a", q65: "d", q66: "a", q67: "b",
+                q68: "b", q69: "d", q70: "c", q71: "a", q72: "a", q73: "b", q74: "c", q75: "d", q76: "a", q77: "a", q78: "d",
                 q79: "a", q80: "b"
             };
 
@@ -169,7 +169,7 @@
                 actualizarContador();
             }
 
-            const p = "sanmarcos2025";
+            const p = "0990931870";
 
             function pedirContraseña() {
                 document.getElementById("contenidoTest").style.display = "none";
@@ -260,7 +260,7 @@
         }
 
         .rectangulo {
-            height: 100px;
+            height: 150px;
             width: 400px;
         }
 
@@ -438,7 +438,7 @@
     <div id="contenidoTest" style="display: none;">
         <header>
             <img src="images/logo.png" alt="logo del preuniversitario">
-            <h2>SIMULADOR UNACH N°2<br>PREUNIVERSITARIO SAN MARCOS</h2>
+            <h2>SIMULADOR UNACH<br>PREUNIVERSITARIO SAN MARCOS</h2>
             <button id="reiniciarBtn">Reiniciar Test</button>
             <p id="timer">Tiempo restante: 60:00</p>
         </header>
@@ -1041,10 +1041,18 @@
 
             <div class="pregunta">
                 <p>Identifique la palabra que No tiene relación con las otras.</p>
-                <input type="radio" name="q53" value="a">automóvil<br>
-                <input type="radio" name="q53" value="b">camión<br>
-                <input type="radio" name="q53" value="c">tren<br>
-                <input type="radio" name="q53" value="d">buque<br>
+                <input type="radio" name="q53" value="a">sapo<br>
+                <input type="radio" name="q53" value="b">rana<br>
+                <input type="radio" name="q53" value="c">salamandra<br>
+                <input type="radio" name="q53" value="d">Víbora<br>
+            </div>
+
+            <div class="pregunta">
+                <p>Identifique la palabra que No tiene relación con las otras.</p>
+                <input type="radio" name="q54" value="a">automóvil<br>
+                <input type="radio" name="q54" value="b">camión<br>
+                <input type="radio" name="q54" value="c">tren<br>
+                <input type="radio" name="q54" value="d">buque<br>
             </div>
 
             <div class="pregunta">
@@ -1053,10 +1061,10 @@
                     letra le corresponde dos números. El nombre es JULIO. A continuación, se expone la tabla para
                     descifrar el código del aula virtual.</p>
                 <img src="images/2h.png" alt="tabla letra valor"><br>
-                <input type="radio" name="q54" value="a">3172365887<br>
-                <input type="radio" name="q54" value="b">3172366592<br>
-                <input type="radio" name="q54" value="c">3172876587<br>
-                <input type="radio" name="q54" value="d">3172366587<br>
+                <input type="radio" name="q55" value="a">3172365887<br>
+                <input type="radio" name="q55" value="b">3172366592<br>
+                <input type="radio" name="q55" value="c">3172876587<br>
+                <input type="radio" name="q55" value="d">3172366587<br>
             </div>
 
             <div class="pregunta">
@@ -1064,10 +1072,10 @@
                     plantilla en la cual deberá identificar cuántas letras p, b y d hay en la misma. Identificar cuántas
                     letras (p) y (b) hay en la plantilla.</p>
                 <img src="images/2i.png" alt="tabla p y b"><br>
-                <input type="radio" name="q55" value="a">p=9, b=11<br>
-                <input type="radio" name="q55" value="b">p=10, b=12<br>
-                <input type="radio" name="q55" value="c">p=11, b=9<br>
-                <input type="radio" name="q55" value="d">p=11, b=10<br>
+                <input type="radio" name="q56" value="a">p=9, b=11<br>
+                <input type="radio" name="q56" value="b">p=10, b=12<br>
+                <input type="radio" name="q56" value="c">p=11, b=9<br>
+                <input type="radio" name="q56" value="d">p=11, b=10<br>
             </div>
 
             <div class="pregunta">
@@ -1075,10 +1083,10 @@
                     letra del abecedario, las piezas están desordenadas alfabéticamente. Gerardo desea identificar
                     cuántas letras (q) hay en el rompecabezas para poder armarlo de la mejor manera.</p>
                 <img src="images/2j.png" alt="tabla q"><br>
-                <input type="radio" name="q56" value="a">11<br>
-                <input type="radio" name="q56" value="b">15<br>
-                <input type="radio" name="q56" value="c">14<br>
-                <input type="radio" name="q56" value="d">13<br>
+                <input type="radio" name="q57" value="a">11<br>
+                <input type="radio" name="q57" value="b">15<br>
+                <input type="radio" name="q57" value="c">14<br>
+                <input type="radio" name="q57" value="d">13<br>
             </div>
 
             <div class="pregunta">
@@ -1088,10 +1096,10 @@
                 <p>Código: 0 1 2 3 4 5 6 7 8 9 E M D A O C L I G N</p>
                 <p>Palabra: D O M E N I C A </p>
                 <b>Seleccione una:</b><br>
-                <input type="radio" name="q57" value="a">5 7 2 9 0 1 2 4<br>
-                <input type="radio" name="q57" value="b">9 7 2 0 3 4 5 1<br>
-                <input type="radio" name="q57" value="c">3 1 0 4 7 9 5 3<br>
-                <input type="radio" name="q57" value="d">2 4 1 0 9 7 5 3<br>
+                <input type="radio" name="q58" value="a">5 7 2 9 0 1 2 4<br>
+                <input type="radio" name="q58" value="b">9 7 2 0 3 4 5 1<br>
+                <input type="radio" name="q58" value="c">3 1 0 4 7 9 5 3<br>
+                <input type="radio" name="q58" value="d">2 4 1 0 9 7 5 3<br>
             </div>
 
             <div class="pregunta">
@@ -1101,10 +1109,10 @@
                     Pedro, Esteban mide 1cm más que Pedro, Carlos mide 3cm más que Esteban, Orlando mide 4cm menos que
                     Jorge. Identifique el orden en el cual deben formarse de menor a mayor.</p>
                 <b>Seleccione una:</b><br>
-                <input type="radio" name="q58" value="a">Pedro, Esteban, Orlando, Carlos, Jorge<br>
-                <input type="radio" name="q58" value="b">Orlando, Pedro, Jorge, Esteban, Carlos<br>
-                <input type="radio" name="q58" value="c">Pedro, Orlando, Jorge, Esteban, Carlos<br>
-                <input type="radio" name="q58" value="d">Jorge, Esteban, Pedro, Orlando, Carlos<br>
+                <input type="radio" name="q59" value="a">Pedro, Esteban, Orlando, Carlos, Jorge<br>
+                <input type="radio" name="q59" value="b">Orlando, Pedro, Jorge, Esteban, Carlos<br>
+                <input type="radio" name="q59" value="c">Pedro, Orlando, Jorge, Esteban, Carlos<br>
+                <input type="radio" name="q59" value="d">Jorge, Esteban, Pedro, Orlando, Carlos<br>
             </div>
 
             <div class="pregunta">
@@ -1122,20 +1130,20 @@
                         <td><img src="images/2l.png" alt="tabla 2"></td>
                     </tr>
                 </table><br>
-                <input type="radio" name="q59" value="a">PERVERCIÓN<br>
-                <input type="radio" name="q59" value="b">PERCHARON<br>
-                <input type="radio" name="q59" value="c">PERCEPCIÓN<br>
-                <input type="radio" name="q59" value="d">PERSUACIÓN<br>
+                <input type="radio" name="q60" value="a">PERVERCIÓN<br>
+                <input type="radio" name="q60" value="b">PERCHARON<br>
+                <input type="radio" name="q60" value="c">PERCEPCIÓN<br>
+                <input type="radio" name="q60" value="d">PERSUACIÓN<br>
             </div>
 
             <div class="pregunta">
                 <p>Soledad es docente en una unidad educativa, para mejorar el nivel de concentración de sus estudiantes
                     ella les dicta una palabra y les indica que encuentren el inverso de la misma. Identifica el inverso
                     de la siguiente palabra: administrativamente </p>
-                <input type="radio" name="q60" value="a">etnemvaitartsinimda<br>
-                <input type="radio" name="q60" value="b">etnemavitartsinimda<br>
-                <input type="radio" name="q60" value="c">tenemavitartsinimda<br>
-                <input type="radio" name="q60" value="d">etnmeavitartsinimda<br>
+                <input type="radio" name="q61" value="a">etnemvaitartsinimda<br>
+                <input type="radio" name="q61" value="b">etnemavitartsinimda<br>
+                <input type="radio" name="q61" value="c">tenemavitartsinimda<br>
+                <input type="radio" name="q61" value="d">etnmeavitartsinimda<br>
             </div>
             <!--LOGICO-->
             <div class="pregunta">
@@ -1144,10 +1152,10 @@
                 AZ, BY, CX, DW, <br>
                 <p>Seleccionar el quinto elemento que completará la sucesión, para desbloquear el acceso a la
                     información. </p>
-                <input type="radio" name="q61" value="a">EZ<br>
-                <input type="radio" name="q61" value="b">EU<br>
-                <input type="radio" name="q61" value="c">EV<br>
-                <input type="radio" name="q61" value="d">AV<br>
+                <input type="radio" name="q62" value="a">EZ<br>
+                <input type="radio" name="q62" value="b">EU<br>
+                <input type="radio" name="q62" value="c">EV<br>
+                <input type="radio" name="q62" value="d">AV<br>
             </div>
 
             <div class="pregunta">
@@ -1156,10 +1164,10 @@
                     través de un patrón matemático.</p>
                 Los términos son: 5, 12, 22, 35, <br>
                 <p>Calcular el próximo número en la secuencia para revelar el oculto misterio detrás de ella.</p>
-                <input type="radio" name="q62" value="a">52<br>
-                <input type="radio" name="q62" value="b">49<br>
-                <input type="radio" name="q62" value="c">51<br>
-                <input type="radio" name="q62" value="d">48<br>
+                <input type="radio" name="q63" value="a">52<br>
+                <input type="radio" name="q63" value="b">49<br>
+                <input type="radio" name="q63" value="c">51<br>
+                <input type="radio" name="q63" value="d">48<br>
             </div>
 
             <div class="pregunta">
@@ -1167,10 +1175,10 @@
                     contraseña dada a través de 5 elementos que obedecen a la siguiente sucesión alfabética:</p>
                 oso, oto, ouo, ovo, <br>
                 <p>Seleccionar el quinto elemento que completará la sucesión, para acceder a la información.</p>
-                <input type="radio" name="q63" value="a">owo<br>
-                <input type="radio" name="q63" value="b">oro<br>
-                <input type="radio" name="q63" value="c">oxo<br>
-                <input type="radio" name="q63" value="d">ozo<br>
+                <input type="radio" name="q64" value="a">owo<br>
+                <input type="radio" name="q64" value="b">oro<br>
+                <input type="radio" name="q64" value="c">oxo<br>
+                <input type="radio" name="q64" value="d">ozo<br>
             </div>
 
             <div class="pregunta">
@@ -1179,10 +1187,10 @@
                     pantalla solo cuatro elementos de la secuencia:</p>
                 imprimir, sentir, escribir, esculpir, <br>
                 <p>Seleccionar la quinta palabra que completará la contraseña.</p>
-                <input type="radio" name="q64" value="a">bailar<br>
-                <input type="radio" name="q64" value="b">condor<br>
-                <input type="radio" name="q64" value="c">comer<br>
-                <input type="radio" name="q64" value="d">invertir<br>
+                <input type="radio" name="q65" value="a">bailar<br>
+                <input type="radio" name="q65" value="b">condor<br>
+                <input type="radio" name="q65" value="c">comer<br>
+                <input type="radio" name="q65" value="d">invertir<br>
             </div>
 
             <div class="pregunta">
@@ -1191,10 +1199,10 @@
                     pantalla se muestran solamente los 4 primeros elementos:</p>
                 16, 32, 96, 384, <br>
                 <p>Seleccionar el quinto elemento correspondiente a la serie, para reiniciar la consola.</p>
-                <input type="radio" name="q65" value="a">1 920<br>
-                <input type="radio" name="q65" value="b">1 918<br>
-                <input type="radio" name="q65" value="c">1 917<br>
-                <input type="radio" name="q65" value="d">1 922<br>
+                <input type="radio" name="q66" value="a">1 920<br>
+                <input type="radio" name="q66" value="b">1 918<br>
+                <input type="radio" name="q66" value="c">1 917<br>
+                <input type="radio" name="q66" value="d">1 922<br>
             </div>
 
             <div class="pregunta">
@@ -1203,10 +1211,10 @@
                 </p>
                 10, 15, 25, 45, 85, <br>
                 <p>Seleccione el premio económico que otorgará el casino luego de ganar la sexta partida de naipes. </p>
-                <input type="radio" name="q66" value="a">160<br>
-                <input type="radio" name="q66" value="b">165<br>
-                <input type="radio" name="q66" value="c">175<br>
-                <input type="radio" name="q66" value="d">170<br>
+                <input type="radio" name="q67" value="a">160<br>
+                <input type="radio" name="q67" value="b">165<br>
+                <input type="radio" name="q67" value="c">175<br>
+                <input type="radio" name="q67" value="d">170<br>
             </div>
             <div class="pregunta">
                 <p>Un profesor olvida el código de activación de su software de cálculo estructural. La plataforma de
@@ -1214,10 +1222,10 @@
                     cinco palabras; y, se muestran solamente cuatro de ellas:</p>
                 candidato, cebolla, circunferencia, cobalto, <br>
                 <p>Seleccionar la quinta palabra que completará la secuencia.</p>
-                <input type="radio" name="q67" value="a">compadre<br>
-                <input type="radio" name="q67" value="b">cuchara<br>
-                <input type="radio" name="q67" value="c">cesantía<br>
-                <input type="radio" name="q67" value="d">camino<br>
+                <input type="radio" name="q68" value="a">compadre<br>
+                <input type="radio" name="q68" value="b">cuchara<br>
+                <input type="radio" name="q68" value="c">cesantía<br>
+                <input type="radio" name="q68" value="d">camino<br>
             </div>
 
             <div class="pregunta">
@@ -1227,10 +1235,10 @@
                 <p>1. (m,l,f,a,p,r,d,n,h,k,t,u,e,c,o,u)<br>2. (l,p,t,r,u,f,e,c,u,k,o.n,h,d,m,a)<br>3.
                     (f,e,l,b,t,h,u,p,o,k.r,a,d,w,u,m)<br>4. (r,o,k.c,u,n,l,m,a,t,h,p,f,u,d,e)</p>
                 Identificar el número del grupo que contiene dichas letras.<br>
-                <input type="radio" name="q68" value="a">1<br>
-                <input type="radio" name="q68" value="b">2<br>
-                <input type="radio" name="q68" value="c">4<br>
-                <input type="radio" name="q68" value="d">3<br>
+                <input type="radio" name="q69" value="a">1<br>
+                <input type="radio" name="q69" value="b">2<br>
+                <input type="radio" name="q69" value="c">4<br>
+                <input type="radio" name="q69" value="d">3<br>
             </div>
 
             <div class="pregunta">
@@ -1239,10 +1247,10 @@
                     pantalla solo cuatro elementos de la secuencia:</p>
                 agotar, enojar, innovar, obviar, <br>
                 <p>Seleccionar la quinta palabra que completará la secuencia</p>
-                <input type="radio" name="q69" value="a">empujar<br>
-                <input type="radio" name="q69" value="b">dibujar<br>
-                <input type="radio" name="q69" value="c">ubicar<br>
-                <input type="radio" name="q69" value="d">escribir<br>
+                <input type="radio" name="q70" value="a">empujar<br>
+                <input type="radio" name="q70" value="b">dibujar<br>
+                <input type="radio" name="q70" value="c">ubicar<br>
+                <input type="radio" name="q70" value="d">escribir<br>
             </div>
 
             <div class="pregunta">
@@ -1252,10 +1260,10 @@
                 </p>
                 talento, tapete, termo, test,<br>
                 <p>Seleccionar la quinta palabra que completará la clave de acceso a la base de datos</p>
-                <input type="radio" name="q70" value="a">tez<br>
-                <input type="radio" name="q70" value="b">tomar<br>
-                <input type="radio" name="q70" value="c">tilo<br>
-                <input type="radio" name="q70" value="d">titanio<br>
+                <input type="radio" name="q71" value="a">tez<br>
+                <input type="radio" name="q71" value="b">tomar<br>
+                <input type="radio" name="q71" value="c">tilo<br>
+                <input type="radio" name="q71" value="d">titanio<br>
             </div>
 
             <div class="pregunta">
@@ -1265,10 +1273,10 @@
                 carta, cerco, circo, costa,<br>
                 <p>Seleccionar la quinta palabra que completará la secuencia y brindará acceso a la base de
                     datos</p>
-                <input type="radio" name="q71" value="a">curva<br>
-                <input type="radio" name="q71" value="b">cúspide<br>
-                <input type="radio" name="q71" value="c">cúmulo<br>
-                <input type="radio" name="q71" value="d">cuna<br>
+                <input type="radio" name="q72" value="a">curva<br>
+                <input type="radio" name="q72" value="b">cúspide<br>
+                <input type="radio" name="q72" value="c">cúmulo<br>
+                <input type="radio" name="q72" value="d">cuna<br>
             </div>
 
             <div class="pregunta">
@@ -1278,28 +1286,20 @@
                     2.- NIBETO<br>
                     3.- LLERGUIMO<br>
                     4.- SUNVE</p>
-                <input type="radio" name="q72" value="a">2<br>
-                <input type="radio" name="q72" value="b">4<br>
-                <input type="radio" name="q72" value="c">1<br>
-                <input type="radio" name="q72" value="d">3<br>
+                <input type="radio" name="q73" value="a">2<br>
+                <input type="radio" name="q73" value="b">4<br>
+                <input type="radio" name="q73" value="c">1<br>
+                <input type="radio" name="q73" value="d">3<br>
             </div>
 
             <div class="pregunta">
                 <p> A Sofía le presentan grupos de números en el cual deberá identificar el grupo de números
                     que no pertenezca al resto de grupos. Identifique la respuesta correcta.</p>
                 01625175985; 01517652985; 01517579825; 01561725985<br><br>
-                <input type="radio" name="q73" value="a">01517652985<br>
-                <input type="radio" name="q73" value="b">01561725985<br>
-                <input type="radio" name="q73" value="c">01517579825<br>
-                <input type="radio" name="q73" value="d">01625175985<br>
-            </div>
-
-            <div class="pregunta">
-                <p>Identifique la palabra que No tiene relación con las otras:</p>
-                <input type="radio" name="q74" value="a">ébano<br>
-                <input type="radio" name="q74" value="b">cobre<br>
-                <input type="radio" name="q74" value="c">plata<br>
-                <input type="radio" name="q74" value="d">oro<br>
+                <input type="radio" name="q74" value="a">01517652985<br>
+                <input type="radio" name="q74" value="b">01561725985<br>
+                <input type="radio" name="q74" value="c">01517579825<br>
+                <input type="radio" name="q74" value="d">01625175985<br>
             </div>
 
             <div class="pregunta">
